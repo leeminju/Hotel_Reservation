@@ -162,7 +162,7 @@ public class Hotel {
 
         if (!remainRoomByDate.containsKey(date)) {
             //날짜 없으면(예약된게 없다)
-            Integer[] arr = {5, 5, 5};// 각 크기 당 10개방 배치
+            Integer[] arr = {4, 4, 4};// 각 크기 당 10개방 배치
             remainRoomByDate.put(date, arr);//
         }
 
