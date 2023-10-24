@@ -7,6 +7,8 @@ public class Hotel {
     Map<String, Integer[]> unreservedRooms = new LinkedHashMap<>();//
     List<Customer> customers = new ArrayList<>();//고객
 
+    Customer current_logined_custormer;
+
     void start() {
         LoginMenu();
     }
@@ -60,7 +62,8 @@ public class Hotel {
 
         if (find != -1) {
             System.out.println("로그인 완료!");
-            MainMenu(customers.get(find));
+            current_logined_custormer = customers.get(find);
+            MainMenu();
         } else {
             System.out.println("회원정보가 없습니다");
             Login();
@@ -86,20 +89,46 @@ public class Hotel {
         LoginMenu();
     }
 
-    void MainMenu(Customer customer) {
+    void MainMenu() {
 
         System.out.println("피땀 눈물 Hotel에 오신것을 환영합니다!");
-        System.out.println(customer.name + "님이 로그인 중입니다!    잔액 :" + customer.cash);
+        System.out.println(current_logined_custormer.name + "님이 로그인 중입니다!    잔액 :" + current_logined_custormer.cash);
 
         System.out.println("1.객실 예약");
         System.out.println("2.예약 목록 조회");
         System.out.println("3.로그아웃");//원래 메뉴로 돌아가기!
+
+        SelectMainMenu();
     }
 
-    void ReservationRoom() {
+    private void SelectMainMenu() {
+        try {
+            int select = sc.nextInt();
+            switch (select) {
+                case 1:
+                    ReservateRoom();
+                    break;
+                case 2:
+                    CheckReservation();
+                    break;
+                case 3:
+                    Logout();
+                    break;
+                default:
+                    System.out.println("잘못 입력하셨습니다 다시 입력해주세요");
+                    SelectLoginMenu();
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("잘못 입력하셨습니다 다시 입력해주세요");
+            sc = new Scanner(System.in);
+            SelectLoginMenu();
+        }
+    }
+
+
+    void ReservateRoom() {
 
         //날짜 입력 받고
-        String date = "2023-10-24";
         if (!unreservedRooms.containsKey(date)) {
             //날짜 없으면
             Integer[] arr = {10, 10, 10};
@@ -114,4 +143,38 @@ public class Hotel {
 
 
     }
+
+    private void CheckReservation() {
+    }
+
+    private void Logout() {
+        System.out.println("로그아웃 하시겠습니까??");
+        System.out.println("1. 네       2. 아니요");
+        try {
+            int select = sc.nextInt();
+            switch (select) {
+                case 1:
+                    System.out.println("로그아웃 합니다");
+                    current_logined_custormer = null;
+                    LoginMenu();
+                case 2:
+                    System.out.println("메인 메뉴로 돌아갑니다");
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    MainMenu();
+                default:
+                    System.out.println("잘못 입력하셨습니다 다시 입력해주세요");
+                    Logout();
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("잘못 입력하셨습니다 다시 입력해주세요");
+            sc = new Scanner(System.in);
+            Logout();
+        }
+
+    }
+
 }
