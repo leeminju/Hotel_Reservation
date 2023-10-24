@@ -32,11 +32,11 @@ public class Hotel {
                     Login();
                     break;
                 default:
-                    System.out.println("잘못 입력하셨습니다 다시 입력해주세요");
+                    System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
                     SelectLoginMenu();
             }
         } catch (InputMismatchException e) {
-            System.out.println("잘못 입력하셨습니다 다시 입력해주세요");
+            System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
             sc = new Scanner(System.in);
             SelectLoginMenu();
         }
@@ -128,7 +128,11 @@ public class Hotel {
 
     void ReservateRoom() {
 
-        //날짜 입력 받고
+
+        //날짜 입력 년 월 일 -> 2023-10-24
+
+        String date ="2023-10-24";
+
         if (!unreservedRooms.containsKey(date)) {
             //날짜 없으면
             Integer[] arr = {10, 10, 10};
