@@ -12,7 +12,7 @@ public class Hotel {
 
     Room[] roomlist = {
             new Room("Standard", 100000),
-            new Room("Delux", 200000),
+            new Room("Deluxe", 200000),
             new Room("Suits", 500000)
     };
     Customer current_logined_customer;
@@ -125,7 +125,7 @@ public class Hotel {
             int select = sc.nextInt();
             switch (select) {
                 case 1:
-                    ReservateRoom();
+                    ReservedRoom();
                     break;
                 case 2:
                     CheckMyReservation();
@@ -153,7 +153,7 @@ public class Hotel {
     private void CheckTotalReservation() {
     }
 
-    void ReservateRoom() {
+    void ReservedRoom() {
         //날짜 입력 받기
         System.out.println("숙박 날짜를 입력해주세요: ");
         sc.nextLine();//이걸 넣어야 오류 안생김! 왜지??
