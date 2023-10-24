@@ -90,7 +90,7 @@ public class Hotel {
     }
 
     void MainMenu() {
-
+        System.out.println("MJ의 branch");
         System.out.println("피땀 눈물 Hotel에 오신것을 환영합니다!");
         System.out.println(current_logined_custormer.name + "님이 로그인 중입니다!    잔액 :" + current_logined_custormer.cash);
 
