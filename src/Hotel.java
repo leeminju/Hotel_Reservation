@@ -30,11 +30,11 @@ public class Hotel {
                     Login();
                     break;
                 default:
-                    System.out.println("잘못 입력하셨습니다 다시 입력해주세요");
+                    System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
                     SelectLoginMenu();
             }
         } catch (InputMismatchException e) {
-            System.out.println("잘못 입력하셨습니다 다시 입력해주세요");
+            System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
             sc = new Scanner(System.in);
             SelectLoginMenu();
         }
