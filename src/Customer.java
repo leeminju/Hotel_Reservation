@@ -21,4 +21,9 @@ public class Customer {
         reservationList.add(uuid);
     }
 
+    void chargeCash(int plus_cash){
+        this.cash += plus_cash;
+    }
+
+
 }

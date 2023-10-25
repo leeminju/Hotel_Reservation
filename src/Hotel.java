@@ -8,9 +8,6 @@ public class Hotel {
     List<Customer> customers = new ArrayList<>();//고객 목록
     Map<UUID, Reservation> reservationMap = new HashMap<>();//전체 예약 목록
 
-
-
-
     Room[] roomlist = {
             new Room("Standard", 100000),
             new Room("Deluxe", 200000),
@@ -20,6 +17,8 @@ public class Hotel {
     static final int ROOM_KIND = 3;
     final int managerPassword = 1234;
     static final String HOTEL_NAME = "P땀눈물";
+
+
 
     Customer current_logined_customer;
 
@@ -213,6 +212,7 @@ public class Hotel {
 
     private void CheckTotalReservation() {
 
+
         System.out.println("관리자 비밀번호를 입력하세요.");
         int insertPassword = sc.nextInt(); //직원이 입력하는 비밀번호
         // if문 활용해서 관리자 비밀번호 일치하는지 여부 확인
@@ -235,6 +235,7 @@ public class Hotel {
             System.out.println("잘못된 접근입니다.");
             MainMenu();
         }
+
     }
 
     void ReservedRoom() {
@@ -245,8 +246,10 @@ public class Hotel {
 
 
         if (!remainRoomByDate.containsKey(date)) {
+
             //날짜 없으면(예약된 게 없다)
             Integer[] arr = {4, 4, 4};// 각 크기 당 10개방 배치
+
             remainRoomByDate.put(date, arr);//
         }
 
@@ -270,7 +273,9 @@ public class Hotel {
             int select = sc.nextInt();
             switch (select) {
                 case 1:
+
                     ReservedRoom();
+
                     break;
                 case 2:
                     MainMenu();
@@ -322,7 +327,9 @@ public class Hotel {
                 } else {
                     System.out.println(date + "에 " + roomlist[select - 1].size + " Room을 예약 하시겠습니까??");
                     System.out.println("가격은 " + roomlist[select - 1].price + "원 입니다!");
+
                     System.out.println(current_logined_customer.name + "님 잔액 :  " + current_logined_customer.cash + "원");
+
                     System.out.println("결제 하시겠습니까??");
                     System.out.println("1. 결제    2.취소");
                     Confirmpayment(date, room_size);
