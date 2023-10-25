@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Hotel {
     //호텔은 모든 예약 목록을 조회 할 수 있다.
-    //고객 목록 저장l
+    //고객 목록 저장
     Scanner sc = new Scanner(System.in);
     Map<String, Integer[]> remainRoomByDate = new LinkedHashMap<>();//
     List<Customer> customers = new ArrayList<>();//고객 목록
@@ -138,11 +138,11 @@ public class Hotel {
                     Logout();
                     break;
                 default:
-                    System.out.println("잘못 입력하셨습니다 다시 입력해주세요");
+                    System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
                     SelectLoginMenu();
             }
         } catch (InputMismatchException e) {
-            System.out.println("잘못 입력하셨습니다 다시 입력해주세요");
+            System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
             sc = new Scanner(System.in);
             SelectLoginMenu();
         }
