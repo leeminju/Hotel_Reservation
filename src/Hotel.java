@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class Hotel {
     //호텔은 모든 예약 목록을 조회 할 수 있다.
@@ -15,9 +16,9 @@ public class Hotel {
     };
 
     static final int ROOM_KIND = 3;
-    final int managerPassword = 1234;
-    static final String HOTEL_NAME = "P땀눈물";
 
+    final String managerPassword = "1234";
+    static final String HOTEL_NAME = "P땀눈물";
 
 
     Customer current_logined_customer;
@@ -29,7 +30,7 @@ public class Hotel {
 
 
     void DataSetting() {
-        customers.add(new Customer("이민주", "01011111111", 250000));//임의로 고객 넣기
+        customers.add(new Customer("이민주", "010-1111-1111", 250000));//임의로 고객 넣기
 
         UUID uuid = UUID.randomUUID();
         reservationMap.put(uuid, new Reservation(uuid, roomlist[1], "이민주", "010-1111-1111", "2023-10-25"));
@@ -89,12 +90,15 @@ public class Hotel {
 
         String phone;
         do {
-            System.out.println("전화번호를 입력하세요(11자):");
+
+            System.out.println("전화번호를 입력하세요(-포함):");
             phone = sc.nextLine();
-            if (phone.length() == 11) {
+            String regEx = "^01(?:0|1|[6-9])[.-]?(\\d{3}|\\d{4})[.-]?(\\d{4})$";
+
+            if (Pattern.matches(regEx, phone) && phone.length() == 13) {
                 break;
             } else {
-                System.out.println("11자가 아닙니다!");
+                System.out.println("맞는 형식의 전화번호가 아닙니다");
             }
         } while (true);
         //phone 하이픈 넣은번호로 변경해주는 코드 작성!
@@ -120,12 +124,15 @@ public class Hotel {
 
         String phone;
         do {
-            System.out.println("전화번호를 입력하세요(11자):");
+            System.out.println("전화번호를 입력하세요(-포함):");
             phone = sc.nextLine();
-            if (phone.length() == 11) {
+
+            String regEx = "^01(?:0|1|[6-9])[.-]?(\\d{3}|\\d{4})[.-]?(\\d{4})$";
+
+            if (Pattern.matches(regEx, phone) && phone.length() == 13) {
                 break;
             } else {
-                System.out.println("11자가 아닙니다!");
+                System.out.println("맞는 형식의 전화번호가 아닙니다");
             }
         } while (true);
 
@@ -211,28 +218,32 @@ public class Hotel {
     }
 
     private void CheckTotalReservation() {
+
+
         System.out.println("관리자 비밀번호를 입력하세요.");
-        int insertPassword = sc.nextInt(); //직원이 입력하는 비밀번호
+        String insertPassword = sc.nextLine(); //직원이 입력하는 비밀번호
         // if문 활용해서 관리자 비밀번호 일치하는지 여부 확인
-        if (insertPassword == managerPassword) {
+        if (insertPassword.equals(managerPassword)) {
             if (reservationMap.isEmpty()) {
-                System.out.println("현재 예약된 객실이 없습니다."); //예약 없을 경우
+                System.out.println("현재 예약된 객실이 존재하지 않습니다."); //예약 없을 경우
                 MainMenu();
             } else {
                 //호텔 전체 예약 목록 띄우기
                 for (UUID uuid : reservationMap.keySet()) {
                     Reservation reservation = reservationMap.get(uuid);
-                    System.out.print("객실 종류: " + reservation.room);
+                    System.out.print("객실 종류: " + reservation.room.size);
                     System.out.print("| 숙박 날짜: " + reservation.date);
                     System.out.print("| 예약 고객명: " + reservation.customer_name);
                     System.out.print("| 고객 전화번호: " + reservation.customer_phone);
                     System.out.println();
+
                 }
             }
         } else {
             System.out.println("잘못된 접근입니다.");
-            MainMenu();
+            CheckTotalReservation();
         }
+
     }
 
     void ReservedRoom() {
