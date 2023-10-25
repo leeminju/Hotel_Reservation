@@ -22,5 +22,4 @@ public class Reservation {
         this.customer_phone = customer_phone;
         this.date = date;
     }
-
 }
