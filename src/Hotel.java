@@ -29,7 +29,7 @@ public class Hotel {
 
 
     void DataSetting() {
-        customers.add(new Customer("이민주", "01011111111", 250000));//임의로 고객 넣기
+        customers.add(new Customer("이민주", "010-1111-1111", 250000));//임의로 고객 넣기
 
         UUID uuid = UUID.randomUUID();
         reservationMap.put(uuid, new Reservation(uuid, roomlist[1], "이민주", "010-1111-1111", "2023-10-25"));
