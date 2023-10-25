@@ -211,14 +211,12 @@ public class Hotel {
     }
 
     private void CheckTotalReservation() {
-
-
         System.out.println("관리자 비밀번호를 입력하세요.");
         int insertPassword = sc.nextInt(); //직원이 입력하는 비밀번호
         // if문 활용해서 관리자 비밀번호 일치하는지 여부 확인
         if (insertPassword == managerPassword) {
             if (reservationMap.isEmpty()) {
-                System.out.println("현재 예약된 객실이 존재하지 않습니다."); //예약 없을 경우
+                System.out.println("현재 예약된 객실이 없습니다."); //예약 없을 경우
                 MainMenu();
             } else {
                 //호텔 전체 예약 목록 띄우기
@@ -235,7 +233,6 @@ public class Hotel {
             System.out.println("잘못된 접근입니다.");
             MainMenu();
         }
-
     }
 
     void ReservedRoom() {
