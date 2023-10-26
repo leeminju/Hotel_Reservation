@@ -9,17 +9,24 @@ public class Reservation {
     //        조합된 UTC 날짜 및 시간
     //        예) 2016-10-27T17:13:40+00:00
 
-    UUID reserved_ID;
-    Room room;//객실
-    String date;//숙박 날짜
-    String customer_name;
-    String customer_phone;
+    private UUID reserved_ID;
+    private Room room;//객실
+    private String date;//숙박 날짜
+    private Customer customer;
 
-    public Reservation(UUID reserved_ID, Room room, String customer_name, String customer_phone, String date) {
+    public Reservation(UUID reserved_ID, Room room, Customer customer, String date) {
         this.reserved_ID = reserved_ID;
         this.room = room;
-        this.customer_name = customer_name;
-        this.customer_phone = customer_phone;
+        this.customer = customer;
         this.date = date;
+    }
+
+    public void PrintReservationInfo() {
+        System.out.println("예약 번호: " + this.reserved_ID + " | 객실 종류: " + this.room.size + " | 숙박 날짜: " + this.date + " | 예약 고객명: " + this.customer.getName()
+                + " | 고객 전화번호: " + this.customer.getPhone_number());
+    }
+
+    public String getDate() {
+        return date;
     }
 }

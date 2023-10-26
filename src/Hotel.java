@@ -5,7 +5,7 @@ public class Hotel {
     //호텔은 모든 예약 목록을 조회 할 수 있다.
     //고객 목록 저장
     Scanner sc = new Scanner(System.in);
-    Map<String, Integer[]> remainRoomByDate = new LinkedHashMap<>();//
+    Map<String, Integer[]> remainRoomByDate = new LinkedHashMap<>();
     List<Customer> customers = new ArrayList<>();//고객 목록
     Map<UUID, Reservation> reservationMap = new HashMap<>();//전체 예약 목록
 
@@ -16,6 +16,10 @@ public class Hotel {
     };
 
     static final int ROOM_KIND = 3;
+    static final int STANDARD = 0;
+    static final int DELUX = 1;
+    static final int SUITS = 2;
+
 
     final String managerPassword = "1234";
     static final String HOTEL_NAME = "P땀눈물";
@@ -30,10 +34,17 @@ public class Hotel {
 
 
     void DataSetting() {
-        customers.add(new Customer("이민주", "010-1111-1111", 250000));//임의로 고객 넣기
+        Customer temp = new Customer("이민주", "010-1111-1111", 250000);
+        customers.add(temp);//임의로 고객 넣기
+
 
         UUID uuid = UUID.randomUUID();
-        reservationMap.put(uuid, new Reservation(uuid, roomlist[1], "이민주", "010-1111-1111", "2023-10-25"));
+        reservationMap.put(uuid, new Reservation(uuid, roomlist[SUITS], temp, "2023-10-25"));
+        uuid = UUID.randomUUID();
+        reservationMap.put(uuid, new Reservation(uuid, roomlist[DELUX], temp, "2023-07-25"));
+        uuid = UUID.randomUUID();
+        reservationMap.put(uuid, new Reservation(uuid, roomlist[STANDARD], temp, "2023-12-25"));
+
         remainRoomByDate.put("2023-10-25", new Integer[]{0, 2, 3});
     }
 
@@ -42,7 +53,8 @@ public class Hotel {
         System.out.println(HOTEL_NAME + " Hotel에 오신것을 환영합니다!");
         System.out.println("1.고객 정보 등록");
         System.out.println("2.로그인");
-        System.out.println("3.종료");
+        System.out.println("3.전체 예약 조회(관리자 전용)");
+        System.out.println("4.종료");
 
         SelectLoginMenu();
     }
@@ -58,6 +70,9 @@ public class Hotel {
                     Login();
                     break;
                 case 3:
+                    CheckTotalReservation();
+                    break;
+                case 4:
                     System.out.println("프로그램을 종료합니다.");
                     System.exit(0);
                     break;
@@ -76,7 +91,7 @@ public class Hotel {
     int findCustomer(String name, String phone) {
         for (int i = 0; i < customers.size(); i++) {
             Customer customer = customers.get(i);
-            if (customer.name.equals(name) && customer.phone_number.equals(phone)) {
+            if (customer.getName().equals(name) && customer.getPhone_number().equals(phone)) {
                 return i;
             }
         }
@@ -100,8 +115,8 @@ public class Hotel {
             } else {
                 System.out.println("맞는 형식의 전화번호가 아닙니다");
             }
+
         } while (true);
-        //phone 하이픈 넣은번호로 변경해주는 코드 작성!
 
         int find = findCustomer(name, phone);
         if (find != -1) {
@@ -116,52 +131,62 @@ public class Hotel {
 
 
     void Signin() {
-
+        //동명이인은 허용
         System.out.println("이름을 입력하세요:");
         sc = new Scanner(System.in);
         String name = sc.nextLine();
 
 
         String phone;
-        do {
+        //같은 번호 허용X
+        while (true) {
             System.out.println("전화번호를 입력하세요(-포함):");
             phone = sc.nextLine();
 
             String regEx = "^01(?:0|1|[6-9])[.-]?(\\d{3}|\\d{4})[.-]?(\\d{4})$";
 
             if (Pattern.matches(regEx, phone) && phone.length() == 13) {
+                if (findPhoneNumber(phone)) {
+                    System.out.println("동일한 번호가 존재합니다!");
+                    continue;
+                }
+
                 break;
             } else {
                 System.out.println("맞는 형식의 전화번호가 아닙니다");
+                continue;
             }
-        } while (true);
-
-
-        //기존 비교해서 존재하면? 이미 등록된 회원입니다!
-        int find = findCustomer(name, phone);
-        if (find != -1) {
-            System.out.println("이미 등록된 회원입니다!");
-            LoginMenu();
-        } else {
-            System.out.println("소지금을 입력하세요:");
-            int cash = sc.nextInt();
-
-            customers.add(new Customer(name, phone, cash));
-            System.out.println("회원 등록이 완료 되었습니다!");
-            LoginMenu();
         }
+
+        int cash = 0;
+
+
+        while (true) {
+            try {
+                System.out.println("소지금을 입력하세요:");
+                cash = sc.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                PrintBadInput("숫자");
+                sc = new Scanner(System.in);
+                continue;
+            }
+        }
+        customers.add(new Customer(name, phone, cash));
+        System.out.println("회원 등록이 완료 되었습니다!");
+        LoginMenu();
 
 
     }
 
     void MainMenu() {
         System.out.println(HOTEL_NAME + " Hotel MENU 입니다!");
-        System.out.println("[" + current_logined_customer.name + "님이 로그인 중입니다!    잔액 :" + current_logined_customer.cash + "]");
+        System.out.println("[" + current_logined_customer.getName() + "님이 로그인 중입니다!    잔액 :" + current_logined_customer.cash + "]");
 
         System.out.println("1. 객실 예약");
-        System.out.println("2. " + current_logined_customer.name + "님의 예약 목록 조회");//로그인 된 사람의 예약 목록
-        System.out.println("3. 전체 예약 조회");
-        System.out.println("4. 캐시 충전");
+        System.out.println("2. " + current_logined_customer.getName() + "님의 예약 목록 조회");//로그인 된 사람의 예약 목록
+        System.out.println("3. 캐시 충전");
+        System.out.println("4. 회원 정보 변경");
         System.out.println("5. 로그아웃");//원래 메뉴로 돌아가기!
 
         SelectMainMenu();
@@ -178,11 +203,10 @@ public class Hotel {
                     CheckMyReservation();
                     break;
                 case 3:
-                    CheckTotalReservation();
-                    break;
-                case 4:
                     ChargeCash();
                     break;
+                case 4:
+                    ChangeCustomerInfo();
                 case 5:
                     Logout();
                     break;
@@ -196,6 +220,106 @@ public class Hotel {
             SelectLoginMenu();
         }
     }
+
+    private void ChangeCustomerInfo() {
+        System.out.println("무엇을 변경 하시겠습니까??");
+        System.out.println("1.이름");
+        System.out.println("2.전화번호");
+        System.out.println();
+        System.out.println("0.메인 메뉴");
+
+        int select = sc.nextInt();
+
+        try {
+            switch (select) {
+                case 0:
+                    TimeSleep("메인 메뉴");
+                    MainMenu();
+                    break;
+                case 1:
+                    ChangeName();
+                    break;
+                case 2:
+                    ChangePhoneNumber();
+                    break;
+                default:
+                    PrintBadInput("숫자");
+                    ChangeCustomerInfo();
+            }
+        } catch (InputMismatchException e) {
+            PrintBadInput("숫자");
+            sc = new Scanner(System.in);
+            ChangeCustomerInfo();
+        }
+    }
+
+    boolean findPhoneNumber(String phone) {
+        for (Customer customer : customers) {
+            if (phone.equals(customer.getPhone_number())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void ChangePhoneNumber() {
+        sc = new Scanner(System.in);
+        String current = current_logined_customer.getPhone_number();
+        System.out.println("현재 전화 번호는 " + current + " 입니다!");
+
+
+        String change_phone;
+        loop:
+        while (true) {
+            System.out.println("새로운 전화 번호을 입력해 주세요!(-포함)");
+            change_phone = sc.nextLine();
+            String regEx = "^01(?:0|1|[6-9])[.-]?(\\d{3}|\\d{4})[.-]?(\\d{4})$";
+
+            if (Pattern.matches(regEx, change_phone) && change_phone.length() == 13) {
+                if (current.equals(change_phone)) {
+                    System.out.println("현재 번호와 동일합니다!");
+                    continue;
+                }
+
+                if (findPhoneNumber(change_phone)) {
+                    System.out.println("동일한 번호의 사용자가 존재합니다!");
+                    continue;
+                }
+
+                current_logined_customer.setPhone_number(change_phone);
+                System.out.println("전화번호가 변경 되었습니다!");
+                break;
+            } else {
+                System.out.println("맞는 형식의 전화번호가 아닙니다");
+                continue;
+            }
+        }
+        TimeSleep("회원 정보 변경");
+        ChangeCustomerInfo();
+
+    }
+
+    private void ChangeName() {
+        String current = current_logined_customer.getName();
+        sc = new Scanner(System.in);
+        System.out.println("현재 이름은 " + current + "입니다!");
+        do {
+            System.out.println("새로운 이름을 입력해 주세요!");
+            String change_name = sc.nextLine();
+
+            if (current.equals(change_name)) {
+                System.out.println("현재 이름과 동일합니다");
+                continue;
+            }
+            current_logined_customer.setName(change_name);
+            break;
+        } while (true);
+        System.out.println("이름이 변경 되었습니다!");
+
+        TimeSleep("회원 정보 변경");
+        ChangeCustomerInfo();
+    }
+
 
     private void ChargeCash() {
         int plus_cash = 0;
@@ -218,32 +342,53 @@ public class Hotel {
     }
 
     private void CheckTotalReservation() {
+        List<UUID> keySet = new ArrayList<>(reservationMap.keySet());
+
+        // 날짜순으로 정렬
+        // keySet.sort((o1, o2) -> reservationMap.get(o1).getDate().compareTo(reservationMap.get(o2).getDate()));
 
 
         System.out.println("관리자 비밀번호를 입력하세요.");
+        Scanner sc = new Scanner(System.in);
         String insertPassword = sc.nextLine(); //직원이 입력하는 비밀번호
         // if문 활용해서 관리자 비밀번호 일치하는지 여부 확인
         if (insertPassword.equals(managerPassword)) {
             if (reservationMap.isEmpty()) {
                 System.out.println("현재 예약된 객실이 존재하지 않습니다."); //예약 없을 경우
-                MainMenu();
             } else {
                 //호텔 전체 예약 목록 띄우기
-                for (UUID uuid : reservationMap.keySet()) {
+                int i = 1;
+                for (UUID uuid : keySet) {
                     Reservation reservation = reservationMap.get(uuid);
-                    System.out.print("객실 종류: " + reservation.room.size);
-                    System.out.print("| 숙박 날짜: " + reservation.date);
-                    System.out.print("| 예약 고객명: " + reservation.customer_name);
-                    System.out.print("| 고객 전화번호: " + reservation.customer_phone);
-                    System.out.println();
-
+                    System.out.print(i++ + ". ");
+                    reservation.PrintReservationInfo();
                 }
+                System.out.println();
+                System.out.println("0. 시작 메뉴");
+                SelectReturnStart();
             }
         } else {
             System.out.println("잘못된 접근입니다.");
             CheckTotalReservation();
         }
 
+    }
+
+    void SelectReturnStart() {
+        try {
+            int select = sc.nextInt();
+            if (select == 0) {
+                TimeSleep("시작 메뉴");
+                LoginMenu();
+            } else {
+                PrintBadInput("숫자");
+                SelectReturnStart();
+            }
+        } catch (InputMismatchException e) {
+            PrintBadInput("숫자");
+            sc = new Scanner(System.in);
+            SelectReturnStart();
+        }
     }
 
     void ReservedRoom() {
@@ -268,7 +413,7 @@ public class Hotel {
         if (isSoldOut(select_date_rooms)) {
             System.out.println("해당 날짜에 남은 객실이 없습니다!!");
             System.out.println("1.날짜 입력      2. 메인 메뉴");
-            SelectReturn();
+            SelectReturnReserve();
             return;
         }
 
@@ -276,26 +421,24 @@ public class Hotel {
         ShowRemainRooms(date);
     }
 
-    void SelectReturn() {
+    void SelectReturnReserve() {
         try {
             int select = sc.nextInt();
             switch (select) {
                 case 1:
-
                     ReservedRoom();
-
                     break;
                 case 2:
                     MainMenu();
                     break;
                 default:
                     PrintBadInput("숫자");
-                    SelectReturn();
+                    SelectReturnReserve();
             }
         } catch (InputMismatchException e) {
             PrintBadInput("숫자");
             sc = new Scanner(System.in);
-            SelectReturn();
+            SelectReturnReserve();
         }
     }
 
@@ -336,7 +479,7 @@ public class Hotel {
                     System.out.println(date + "에 " + roomlist[select - 1].size + " Room을 예약 하시겠습니까??");
                     System.out.println("가격은 " + roomlist[select - 1].price + "원 입니다!");
 
-                    System.out.println(current_logined_customer.name + "님 잔액 :  " + current_logined_customer.cash + "원");
+                    System.out.println(current_logined_customer.getName() + "님 잔액 :  " + current_logined_customer.cash + "원");
 
                     System.out.println("결제 하시겠습니까??");
                     System.out.println("1. 결제    2.취소");
@@ -368,7 +511,7 @@ public class Hotel {
                         current_logined_customer.cash -= roomlist[room_size].price;//캐쉬 차감
 
                         UUID reserved_id = UUID.randomUUID(); //UUid 생성
-                        Reservation reservation = new Reservation(reserved_id, roomlist[room_size], current_logined_customer.name, current_logined_customer.phone_number, date);
+                        Reservation reservation = new Reservation(reserved_id, roomlist[room_size], current_logined_customer, date);
                         reservationMap.put(reserved_id, reservation);//예약 Map에 추가
                         current_logined_customer.addReservedId(reserved_id);//로그인된 손님에게 예약번호 저장
 
