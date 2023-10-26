@@ -19,7 +19,6 @@ public class Hotel {
     Room[] roomlist = {
             new Room("Standard", 100000),
             new Room("Deluxe", 200000),
-
             new Room("Suite", 500000)
     };
 
@@ -359,8 +358,26 @@ public class Hotel {
     }
 
     private void CheckMyReservation() {
+        List<UUID> my_reservation = current_logined_customer.getReservationList(); //
 
+        if(my_reservation.isEmpty()){
+            System.out.println("현재 예약된 정보가 없습니다.");
+            TimeSleep("메인 메뉴");
+            MainMenu();
+        }
+
+        for (int i = 0; i < my_reservation.size(); i++) {
+            UUID uuid = my_reservation.get(i);
+            Reservation reservation = reservationMap.get(uuid);
+            int idx = 1;
+            System.out.print(idx++ + ". ");
+            reservation.PrintReservationInfo();
+        }
+        System.out.println("예약 취소를 진행하시겠습니까?");
+        System.out.println("1.네    2. 아니요");
+        SelectCancel("메인 메뉴");
     }
+
 
     private void CheckTotalReservation() {
 
@@ -390,7 +407,7 @@ public class Hotel {
 
                 System.out.println("예약 취소를 진행하시겠습니까?");
                 System.out.println("1.네    2. 아니요");
-                SelectCancel();
+                SelectCancel("시작 메뉴");
             }
         } else {
             System.out.println("잘못된 접근입니다.");
@@ -400,7 +417,7 @@ public class Hotel {
     }
 
 
-    void SelectCancel() {
+    void SelectCancel(String next) {
         try {
             int select = sc.nextInt();
             if (select == 1) {
@@ -450,26 +467,41 @@ public class Hotel {
                     remainRoomByDate.put(reseved_date, remain_rooms);
 
                     System.out.println("예약 취소와 환불 진행 되었습니다!");
-                    TimeSleep("시작 메뉴");
-                    LoginMenu();
+                    if(next.equals("시작 메뉴")) {
+                        TimeSleep("시작 메뉴");
+                        LoginMenu();
+                    }else if(next.equals("메인 메뉴")){
+                        TimeSleep("메인 메뉴");
+                        MainMenu();
+                    }
 
                 } else if (choice == 2) {
-                    TimeSleep("시작 메뉴");
-                    LoginMenu();
+                    if(next.equals("시작 메뉴")) {
+                        TimeSleep("시작 메뉴");
+                        LoginMenu();
+                    }else if(next.equals("메인 메뉴")){
+                        TimeSleep("메인 메뉴");
+                        MainMenu();
+                    }
                 }
 
 
             } else if (select == 2) {
-                TimeSleep("시작 메뉴");
-                LoginMenu();
+                if(next.equals("시작 메뉴")) {
+                    TimeSleep("시작 메뉴");
+                    LoginMenu();
+                }else if(next.equals("메인 메뉴")){
+                    TimeSleep("메인 메뉴");
+                    MainMenu();
+                }
             } else {
                 PrintBadInput("숫자");
-                SelectCancel();
+                SelectCancel(next);
             }
         } catch (InputMismatchException e) {
             PrintBadInput("숫자");
             sc = new Scanner(System.in);
-            SelectCancel();
+            SelectCancel(next);
         }
     }
 
@@ -662,7 +694,7 @@ public class Hotel {
                         String checkout = dateFormat.format(cal.getTime());
 
                         System.out.println(checkout + " 체크아웃");
-                        System.out.println(room_size+"Room 예약 완료!!!");
+                        System.out.println(roomlist[room_size].size+"Room 예약 완료!!!");
 
                         TimeSleep("메인 메뉴");
                         MainMenu();

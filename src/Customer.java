@@ -24,6 +24,9 @@ public class Customer {
         reservationList.add(uuid);
     }
 
+    public List<UUID> getReservationList() {
+        return reservationList;
+    }
 
     void chargeCash(int plus_cash) {
 
