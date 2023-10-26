@@ -33,6 +33,7 @@ public class Hotel {
 
 
     void start() {
+        System.out.println("test");
         dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
         DataSetting();
         LoginMenu();
