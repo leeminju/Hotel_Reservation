@@ -1,4 +1,4 @@
-
+import javax.sound.midi.Soundbank;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,15 +11,21 @@ public class Hotel {
     //고객 목록 저장
     Scanner sc = new Scanner(System.in);
 
-    Map<String, Integer[]> remainRoomByDate = new LinkedHashMap<>();//
+    Map<String, Integer[]> remainRoomByDate = new HashMap<>();//
 
     List<Customer> customers = new ArrayList<>();//고객 목록
     Map<UUID, Reservation> reservationMap = new HashMap<>();//전체 예약 목록
 
-    Room[] roomlist = {
+    Room[] weekday_roomlist = {
             new Room("Standard", 100000),
             new Room("Deluxe", 200000),
             new Room("Suite", 500000)
+    };
+
+    Room[] weekend_roomlist = {
+            new Room("Standard", 130000),
+            new Room("Deluxe", 230000),
+            new Room("Suite", 530000)
     };
 
     static final int ROOM_KIND = 3;
@@ -42,9 +48,12 @@ public class Hotel {
     }
 
 
-
     void DataSetting() {
-        customers.add(new Customer("이민주", "010-1111-1111", 250000));//임의로 고객 넣기
+        Customer customer1 = new Customer("이민주", "010-1111-1111", 200000);
+        Customer customer2 = new Customer("문형원", "010-2222-2222", 500000);
+
+        customers.add(customer1);
+        customers.add(customer2);
     }
 
     void PrintCurrentDateTime() {
@@ -52,7 +61,6 @@ public class Hotel {
         String today_str = dateFormat.format(current_date);
         System.out.println("현재 시간 : " + today_str);
     }
-
 
 
     void LoginMenu() {
@@ -340,7 +348,6 @@ public class Hotel {
     }
 
 
-
     private void ChargeCash() {
         int plus_cash = 0;
         System.out.println("얼마를 충전하시겠습니까?");
@@ -358,18 +365,19 @@ public class Hotel {
     }
 
     private void CheckMyReservation() {
-        List<UUID> my_reservation = current_logined_customer.getReservationList(); //
+        List<UUID> my_reservation = current_logined_customer.getReservationList(); //예약순으로 저장
 
-        if(my_reservation.isEmpty()){
+        if (my_reservation.isEmpty()) {
             System.out.println("현재 예약된 정보가 없습니다.");
             TimeSleep("메인 메뉴");
             MainMenu();
         }
 
+        System.out.println("["+current_logined_customer.getName()+"님의 예약 목록 ]");
+        int idx = 1;
         for (int i = 0; i < my_reservation.size(); i++) {
             UUID uuid = my_reservation.get(i);
             Reservation reservation = reservationMap.get(uuid);
-            int idx = 1;
             System.out.print(idx++ + ". ");
             reservation.PrintReservationInfo();
         }
@@ -389,14 +397,17 @@ public class Hotel {
 
         System.out.println("관리자 비밀번호를 입력하세요.");
         Scanner sc = new Scanner(System.in);
-
         String insertPassword = sc.nextLine(); //직원이 입력하는 비밀번호
+
         // if문 활용해서 관리자 비밀번호 일치하는지 여부 확인
         if (insertPassword.equals(managerPassword)) {
             if (reservationMap.isEmpty()) {
                 System.out.println("현재 예약된 객실이 존재하지 않습니다."); //예약 없을 경우
+                TimeSleep("시작 메뉴");
+                LoginMenu();
             } else {
                 //호텔 전체 예약 목록 띄우기
+                System.out.println("[ 전체 예약 목록 ]");
                 int i = 1;
                 for (UUID uuid : keySet) {
                     Reservation reservation = reservationMap.get(uuid);
@@ -416,6 +427,28 @@ public class Hotel {
 
     }
 
+    void Cancel(UUID uuid) {
+        Reservation reservation = reservationMap.get(uuid);// 예약정보
+
+        String size = reservation.getRoom().size;
+        int room_price = reservation.getRoom().price;
+        String reseved_date = reservation.getDate();
+
+        reservation.getCustomer().chargeCash(room_price);//환불
+        reservation.getCustomer().removeReseved_id(uuid);//고객의 예약번호 리스트에서도 삭제
+        reservationMap.remove(uuid);//전체 맵에서도 삭제(키값으로 삭제)
+
+        Integer[] remain_rooms = remainRoomByDate.get(reseved_date);//잔여객실 수 증가
+        if (size.equals("Standard")) {
+            remain_rooms[STANDARD]++;
+        } else if (size.equals("Deluxe")) {
+            remain_rooms[DELUXE]++;
+        } else if (size.equals("Suite")) {
+            remain_rooms[SUITE]++;
+        }
+
+        //remainRoomByDate.put(reseved_date, remain_rooms); ->이걸 안해줘도 괜찮다! Integer[]라서!
+    }
 
     void SelectCancel(String next) {
         try {
@@ -434,6 +467,16 @@ public class Hotel {
                         continue;
                     }
                     if (reservationMap.containsKey(uuid)) {
+
+                        if (next.equals("메인 메뉴")) {
+                            //if (reservationMap.get(uuid).getCustomer().equals(current_logined_customer)) {// -> 안됨
+                            if (reservationMap.get(uuid).getCustomer() != current_logined_customer) {// 주소값 비교, 비교하려는 객체가 동일한 객체인지를 판별
+                                System.out.println("본인의 예약 정보가 아니라 삭제 불가합니다!");
+                                continue;
+                            }
+                        }
+
+
                         reservationMap.get(uuid).PrintReservationInfo();
                         System.out.println("해당 예약 취소하시겠습니까?");
                         System.out.println("1.네   2.아니요");
@@ -446,40 +489,22 @@ public class Hotel {
 
                 int choice = sc.nextInt();
                 if (choice == 1) {
-                    Reservation reservation = reservationMap.get(uuid);
-                    String size = reservation.getRoom().size;
-                    int room_price = reservation.getRoom().price;
-                    String reseved_date = reservation.getDate();
-
-                    reservation.getCustomer().chargeCash(room_price);//환불
-                    reservation.getCustomer().removeReseved_id(uuid);//고객의 예약번호 리스트에서도 삭제
-
-                    reservationMap.remove(uuid);//전체 맵에서도 삭제(키값으로 삭제)
-
-                    Integer[] remain_rooms = remainRoomByDate.get(reseved_date);//잔여객실 수 증가
-                    if (size.equals("Standard")) {
-                        remain_rooms[STANDARD]++;
-                    } else if (size.equals("Deluxe")) {
-                        remain_rooms[DELUXE]++;
-                    } else if (size.equals("Suite")) {
-                        remain_rooms[SUITE]++;
-                    }
-                    remainRoomByDate.put(reseved_date, remain_rooms);
-
+                    Cancel(uuid);
                     System.out.println("예약 취소와 환불 진행 되었습니다!");
-                    if(next.equals("시작 메뉴")) {
+
+                    if (next.equals("시작 메뉴")) {
                         TimeSleep("시작 메뉴");
                         LoginMenu();
-                    }else if(next.equals("메인 메뉴")){
+                    } else if (next.equals("메인 메뉴")) {
                         TimeSleep("메인 메뉴");
                         MainMenu();
                     }
 
                 } else if (choice == 2) {
-                    if(next.equals("시작 메뉴")) {
+                    if (next.equals("시작 메뉴")) {
                         TimeSleep("시작 메뉴");
                         LoginMenu();
-                    }else if(next.equals("메인 메뉴")){
+                    } else if (next.equals("메인 메뉴")) {
                         TimeSleep("메인 메뉴");
                         MainMenu();
                     }
@@ -487,10 +512,10 @@ public class Hotel {
 
 
             } else if (select == 2) {
-                if(next.equals("시작 메뉴")) {
+                if (next.equals("시작 메뉴")) {
                     TimeSleep("시작 메뉴");
                     LoginMenu();
-                }else if(next.equals("메인 메뉴")){
+                } else if (next.equals("메인 메뉴")) {
                     TimeSleep("메인 메뉴");
                     MainMenu();
                 }
@@ -516,8 +541,11 @@ public class Hotel {
     }
 
     void ReservedRoom() {
+
         //날짜 입력 받기
         String date_str;
+        int daynum;
+        String dayOfWeek;
         while (true) {
             try {
                 Scanner sc = new Scanner(System.in);
@@ -551,6 +579,9 @@ public class Hotel {
                     continue;
                 }
 
+                cal.setTime(input_date);//입력 날짜
+                daynum = cal.get(Calendar.DAY_OF_WEEK);//요일 1-일요일 7-토요일  2-6번 주중
+                dayOfWeek = getDayStr(daynum);
                 break;
 
             } catch (ParseException e) {
@@ -560,7 +591,6 @@ public class Hotel {
         }
 
         if (!remainRoomByDate.containsKey(date_str)) {
-
 
             //날짜 없으면(예약된 게 없다)
             Integer[] arr = {4, 4, 4};// 각 크기 당 10개방 배치
@@ -576,11 +606,46 @@ public class Hotel {
             System.out.println("해당 날짜에 남은 객실이 없습니다!!");
             System.out.println("1.날짜 입력      2. 메인 메뉴");
             SelectReturnReserve();
-
             return;
         }
 
-        ShowRemainRooms(date_str);
+        ShowRemainRooms(date_str, dayOfWeek);
+    }
+
+
+    boolean isWeekday(String day) {
+        if (day.equals("SUN") || day.equals(("SAT")))
+            return false;
+
+        return true;
+    }
+
+    public String getDayStr(int dayNum) {
+        String day = "";
+        switch (dayNum) {
+            case 1:
+                day = "SUN";
+                break;
+            case 2:
+                day = "MON";
+                break;
+            case 3:
+                day = "TUE";
+                break;
+            case 4:
+                day = "WED";
+                break;
+            case 5:
+                day = "THU";
+                break;
+            case 6:
+                day = "FRI";
+                break;
+            case 7:
+                day = "SUN";
+                break;
+        }
+        return day;
     }
 
     void SelectReturnReserve() {
@@ -616,20 +681,33 @@ public class Hotel {
         return true;
     }
 
-    private void ShowRemainRooms(String date) {
+    private void ShowRemainRooms(String date, String dayOfWeek) {
         Integer[] select_date_rooms = remainRoomByDate.get(date);
-        System.out.println(date + " 객실 현황 입니다");
+        System.out.println(date + "(" + dayOfWeek + ")" + " 객실 현황 입니다");
+
+        Room[] current;
+        boolean isweekday = isWeekday(dayOfWeek);
+        if (isWeekday(dayOfWeek)) {
+            current = weekday_roomlist;
+            System.out.println("[주중 가격]");
+        } else {
+            current = weekend_roomlist;
+            System.out.println("[주말 가격]");
+        }
+
 
         for (int i = 0; i < ROOM_KIND; i++) {
-            System.out.println((i + 1) + "." + roomlist[i].size + "(" + select_date_rooms[i] + "개 남음)          가격:" + roomlist[i].price + "원");
+            System.out.println((i + 1) + "." + current[i].size + "(" + select_date_rooms[i] + "개 남음)          가격:" + current[i].price + "원");
         }
+
+
         System.out.println("0. 메인 메뉴");
 
-        SelectRoomSize(date);
+        SelectRoomSize(date, dayOfWeek);
     }
 
 
-    private void SelectRoomSize(String date) {
+    private void SelectRoomSize(String date, String dayOfweek) {
         Integer[] select_date_rooms = remainRoomByDate.get(date);
         try {
             int select = sc.nextInt();
@@ -639,49 +717,64 @@ public class Hotel {
                 if (select_date_rooms[room_size] == 0) {
                     System.out.println("해당 객실은 예약 마감되었습니다");
                     System.out.println("다른 객실을 선택해주세요!");
-                    SelectRoomSize(date);
+                    SelectRoomSize(date, dayOfweek);
                 } else {
-                    System.out.println(date + "에 " + roomlist[select - 1].size + " Room을 예약 하시겠습니까??");
-                    System.out.println("가격은 " + roomlist[select - 1].price + "원 입니다!");
-                    System.out.println(current_logined_customer.getName() + "님 잔액 :  " + current_logined_customer.cash + "원");
+                    Room[] current;
+                    if (isWeekday(dayOfweek)) {
+                        current=weekday_roomlist;
+                    } else {
+                        current=weekend_roomlist;
+                    }
 
+                    System.out.println(date + "에 " + current[select - 1].size + " Room을 예약 하시겠습니까??");
+                    System.out.println("가격은 " + current[select - 1].price + "원 입니다!");
+
+                    System.out.println(current_logined_customer.getName() + "님 잔액 :  " + current_logined_customer.cash + "원");
                     System.out.println("결제 하시겠습니까??");
                     System.out.println("1. 결제    2.취소");
-                    Confirmpayment(date, room_size);
+                    Confirmpayment(date, room_size, dayOfweek);
                 }
             } else if (select == 0) {
                 TimeSleep("메인 메뉴");
                 MainMenu();
             } else {
                 PrintBadInput("숫자");
-                SelectRoomSize(date);
+                SelectRoomSize(date, dayOfweek);
             }
 
         } catch (InputMismatchException e) {
             sc = new Scanner(System.in);
-            SelectRoomSize(date);
+            SelectRoomSize(date, dayOfweek);
         }
     }
 
     //결제 확인
-    private void Confirmpayment(String date, int room_size) {
+    private void Confirmpayment(String date, int room_size, String dayOfWeek) {
         Integer[] select_date_rooms = remainRoomByDate.get(date);
         try {
             int select = sc.nextInt();
             switch (select) {
                 //결제
                 case 1:
-                    if (current_logined_customer.cash >= roomlist[room_size].price) {
-                        current_logined_customer.cash -= roomlist[room_size].price;//캐쉬 차감
+                    Room[] current;
+                    if (isWeekday(dayOfWeek)) {
+                        current = weekday_roomlist;
+                    } else {
+                        current = weekend_roomlist;
+                    }
+
+                    if (current_logined_customer.cash >= current[room_size].price) {
+                        current_logined_customer.cash -= current[room_size].price;//캐쉬 차감
 
                         UUID reserved_id = UUID.randomUUID(); //UUid 생성
-                        Reservation reservation = new Reservation(reserved_id, roomlist[room_size], current_logined_customer, date);
+                        Reservation reservation = new Reservation(reserved_id, current[room_size], current_logined_customer, date);
 
                         reservationMap.put(reserved_id, reservation);//예약 Map에 추가
                         current_logined_customer.addReservedId(reserved_id);//로그인된 손님에게 예약번호 저장
 
                         select_date_rooms[room_size] -= 1;//해당 크기 방 개수 1 감소
                         remainRoomByDate.put(date, select_date_rooms);
+                        System.out.println("예약번호 : "+reserved_id);
                         System.out.println(date + " 체크인");
 
 
@@ -694,28 +787,28 @@ public class Hotel {
                         String checkout = dateFormat.format(cal.getTime());
 
                         System.out.println(checkout + " 체크아웃");
-                        System.out.println(roomlist[room_size].size+"Room 예약 완료!!!");
+                        System.out.println(current[room_size].size + " Room 예약 완료!!!");
 
                         TimeSleep("메인 메뉴");
                         MainMenu();
                     } else {
                         System.out.println("잔액이 부족합니다!");
                         TimeSleep("객실 선택");
-                        ShowRemainRooms(date);
+                        ShowRemainRooms(date, dayOfWeek);
                     }
                     break;
                 //취소
                 case 2:
                     TimeSleep("객실 선택");
-                    ShowRemainRooms(date);
+                    ShowRemainRooms(date, dayOfWeek);
                 default:
                     PrintBadInput("숫자");
-                    Confirmpayment(date, room_size);
+                    Confirmpayment(date, room_size, dayOfWeek);
             }
         } catch (InputMismatchException e) {
             PrintBadInput("숫자");
             sc = new Scanner(System.in);
-            Confirmpayment(date, room_size);
+            Confirmpayment(date, room_size, dayOfWeek);
         } catch (ParseException e) {
             throw new RuntimeException(e);
 
