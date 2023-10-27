@@ -51,9 +51,13 @@ public class Hotel {
     void DataSetting() {
         Customer customer1 = new Customer("이민주", "010-1111-1111", 200000);
         Customer customer2 = new Customer("문형원", "010-2222-2222", 500000);
+        Customer customer3 = new Customer("김영도", "010-3333-3333", 300000);
+        Customer customer4 = new Customer("홍지운", "010-4444-4444", 400000);
 
         customers.add(customer1);
         customers.add(customer2);
+        customers.add(customer3);
+        customers.add(customer4);
     }
 
     void PrintCurrentDateTime() {
@@ -373,7 +377,7 @@ public class Hotel {
             MainMenu();
         }
 
-        System.out.println("["+current_logined_customer.getName()+"님의 예약 목록 ]");
+        System.out.println("[" + current_logined_customer.getName() + "님의 예약 목록 ]");
         int idx = 1;
         for (int i = 0; i < my_reservation.size(); i++) {
             UUID uuid = my_reservation.get(i);
@@ -721,9 +725,9 @@ public class Hotel {
                 } else {
                     Room[] current;
                     if (isWeekday(dayOfweek)) {
-                        current=weekday_roomlist;
+                        current = weekday_roomlist;
                     } else {
-                        current=weekend_roomlist;
+                        current = weekend_roomlist;
                     }
 
                     System.out.println(date + "에 " + current[select - 1].size + " Room을 예약 하시겠습니까??");
@@ -774,7 +778,7 @@ public class Hotel {
 
                         select_date_rooms[room_size] -= 1;//해당 크기 방 개수 1 감소
                         remainRoomByDate.put(date, select_date_rooms);
-                        System.out.println("예약번호 : "+reserved_id);
+                        System.out.println("예약번호 : " + reserved_id);
                         System.out.println(date + " 체크인");
 
 
