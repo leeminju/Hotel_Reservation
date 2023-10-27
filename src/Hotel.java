@@ -51,7 +51,7 @@ public class Hotel {
     void DataSetting() {
         Customer customer1 = new Customer("이민주", "010-1111-1111", 200000);
         Customer customer2 = new Customer("문형원", "010-2222-2222", 500000);
-        Customer customer3 = new Customer("김영도", "010-3333-3333", 300000);
+        Customer customer3 = new Customer("정영도", "010-3333-3333", 300000);
         Customer customer4 = new Customer("홍지운", "010-4444-4444", 400000);
 
         customers.add(customer1);
