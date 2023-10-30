@@ -1,5 +1,7 @@
 # Hotel_Reservation
 
+팀 노션
+[https://www.notion.so/P-A-8-f4f32545d66546ddb87cf321a16e469c]
 시연 영상 
 [https://youtu.be/DgwEzEQHWq4]
 ## 시작메뉴
