@@ -1,2 +1,0 @@
-/ filter=lfs diff=lfs merge=lfs -text
-시연영상.mp4 filter=lfs diff=lfs merge=lfs -text
