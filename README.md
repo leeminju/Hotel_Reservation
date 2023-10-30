@@ -1,4 +1,7 @@
 # Hotel_Reservation
+
+시연 영상 
+[https://youtu.be/DgwEzEQHWq4]
 ## 시작메뉴
 현재 시간 표시
 ### 1.고객 정보 등록
