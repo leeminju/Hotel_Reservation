@@ -1,4 +1,10 @@
 # Hotel_Reservation
+
+<div>팀 노션
+[https://www.notion.so/P-A-8-f4f32545d66546ddb87cf321a16e469c]</div>
+<div>시연 영상 
+[https://youtu.be/DgwEzEQHWq4]</div>
+
 ## 시작메뉴
 현재 시간 표시
 ### 1.고객 정보 등록
