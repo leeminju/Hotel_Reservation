@@ -687,13 +687,13 @@ public class HotelApplication extends Hotel {
 
         String size = reservation.getRoom().size;
         int room_price = reservation.getRoom().price;
-        String reseved_date = reservation.getDate();
+        String resevedDate = reservation.getDate();
 
         reservation.getCustomer().chargeCash(room_price);//환불
         reservation.getCustomer().removeReseved_id(uuid);//고객의 예약번호 리스트에서도 삭제
         reservations.remove(uuid);//전체 맵에서도 삭제(키값으로 삭제)
 
-        Map<RoomType, Integer> remainRooms = remainRoomByDate.get(reseved_date);//잔여객실 수 증가
+        Map<RoomType, Integer> remainRooms = remainRoomByDate.get(resevedDate);//잔여객실 수 증가
 
         switch (size) {
             case "Standard" -> remainRooms.put(RoomType.STANDARD, remainRooms.get(RoomType.STANDARD) + 1);

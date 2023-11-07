@@ -5,6 +5,12 @@ import java.time.DayOfWeek;
 import java.util.*;
 
 public class Hotel {
+    static final int STANDARD = 0;
+    static final int DELUXE = 1;
+    static final int SUITE = 2;
+    final String managerPassword = "1234";
+    static final String HOTEL_NAME = "P땀눈물";
+
     static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
     Map<String, Map<RoomType, Integer>> remainRoomByDate = new HashMap<>();
     List<Customer> customers = new ArrayList<>();//고객 목록
@@ -27,11 +33,6 @@ public class Hotel {
         SUITE,
     }
 
-    static final int STANDARD = 0;
-    static final int DELUXE = 1;
-    static final int SUITE = 2;
-    final String managerPassword = "1234";
-    static final String HOTEL_NAME = "P땀눈물";
 
     void dataSetting() {
         Customer customer1 = new Customer("이민주", "010-1111-1111", 200000);
@@ -92,9 +93,7 @@ public class Hotel {
     }
 
     boolean isWeekday(DayOfWeek dayOfWeek) {
-        if (dayOfWeek == DayOfWeek.SUNDAY || dayOfWeek == DayOfWeek.SATURDAY)
-            return false;
-        return true;
+        return dayOfWeek != DayOfWeek.SUNDAY && dayOfWeek != DayOfWeek.SATURDAY;
     }
 
 
